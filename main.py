@@ -1,95 +1,67 @@
+''' Original file by Edgar Fong
+    Modified by Nico Andrade 5-10-2023, 5-12-2023
+    Modified by Saul Romero  
+'''
 from tkinter import *
 from tkinter import messagebox
 import re
 
 inToken = ("empty", "empty")
+Mytokens = [] 
 
 
-def accept_token(Mytokens):
+def accept_token():
   global inToken
+  global Mytokens
   print("     accept token from the list:" + inToken[1])
   inToken = Mytokens.pop(0)
 
 
-def math(Mytokens):
-  print("\n----parent node math, finding children nodes:")
-  global inToken
-  if (inToken[0] == "Int_Float"):
-    print("child node (internal): float")
-    print("    float has child node (token):" + inToken[1])
-    accept_token(Mytokens)
+def math():
+    print("\n----parent node math, finding children nodes:")
+    global inToken
+    if(inToken[0]=="Float_Literal"):
+        print("child node (internal): float")
+        print("   float has child node (token):"+inToken[1])
+        accept_token()
+    elif (inToken[0]=="Int_Literal"):
+        print("child node (internal): int")
+        print("   int has child node (token):"+inToken[1])
+        accept_token()
 
-    if (inToken[1] == "+"):
-      print("child node (token):" + inToken[1])
-      accept_token(Mytokens)
+        if(inToken[1]=="+"):
+            print("child node (token):"+inToken[1])
+            accept_token()
 
-      print("child node (internal): math")
-      math(Mytokens)
-
-    elif (inToken[1] == "*"):
-      print("child node (token):" + inToken[1])
-      accept_token(Mytokens)
-
-      print("child node (internal): math")
-      math(Mytokens)
-
-  elif (inToken[0] == "Int_Lit"):
-    print("child node (internal): int")
-    print("   int has child node (token):" + inToken[1])
-    accept_token(Mytokens)
-
-    if (inToken[1] == "+"):
-      print("child node (token):" + inToken[1])
-      accept_token(Mytokens)
-
-      print("child node (internal): math")
-      math(Mytokens)
-
-    elif (inToken[1] == "*"):
-      print("child node (token):" + inToken[1])
-      accept_token(Mytokens)
-
-      print("child node (internal): math")
-      math(Mytokens)
+            print("child node (internal): math")
+            math()
+        else:
+            print("error, you need + after the int in the math")
 
     else:
-      print("error, you need + after the int in the math")
+        print("error, math expects float or int")
 
-  else:
-    print("error, math expects float or int")
+def exp():
+    print("\n----parent node exp, finding children nodes:")
+    global inToken;
+    typeT,token=inToken;
+    if(typeT=="Identifier"):
+        print("child node (internal): identifier")
+        print("   identifier has child node (token):"+token)
+        accept_token()
+    else:
+        print("expect identifier as the first element of the expression!\n")
+        return
 
+    if(inToken[1]=="="):
+        print("child node (token):"+inToken[1])
+        accept_token()
+    else:
+        print("expect = as the second element of the expression!")
+        return
 
-def exp(Mytokens):
-  print("\n----parent node exp, finding children nodes:")
-  global inToken
-  typeT, token = inToken
-  if (typeT == "Keyword"):
-    print("child node (internal): keyword")
-    print("   Keyword has child node (token):" + token)
-    accept_token(Mytokens)
-  else:
-    print("expect Keyword as the first element of the expression!\n")
-    return
-
-  typeT, token = inToken
-  print(inToken[0])
-  if (typeT == "Identifier"):
-    print("child node (token):" + token)
-    accept_token(Mytokens)
-  else:
-    print("expect identifier as the second element of the expression!")
-    return
-
-  typeT, token = inToken
-  if (token == "="):
-    print("child node (token):" + token)
-    accept_token(Mytokens)
-  else:
-    print("expect = as the third element of the expression!")
-    return
-
-  print("Child node (internal): math")
-  math(Mytokens)
+    print("Child node (internal): math")
+    math()
 
 
 def parser(Mytokens):
@@ -98,6 +70,15 @@ def parser(Mytokens):
   exp(Mytokens)
   if (inToken[1] == ";"):
     print("\nparse tree building success!")
+
+
+def makeParseTree(Mytokens):
+    global inToken
+    inToken=Mytokens.pop(0)
+    exp()
+    if(inToken[1]==";"):
+        print("\nparse tree building success!")
+    return
 
 
 def CutOneLineTokens(sample):
@@ -146,8 +127,8 @@ def Tokens(list):
   mytokens = []
 
   if test != None:  #checking for int
-    token = "<Int_Lit," + str(list) + ">"
-    tuples = "Int_Lit," + str(list)
+    token = "<Int_Literal," + str(list) + ">"
+    tuples = "Int_Literal," + str(list)
     mytokens.append(tuples)
     out = True
 
@@ -155,8 +136,8 @@ def Tokens(list):
   test = r.match(list)
 
   if test != None and out == False:  #checking for float
-    token = "<Int_Float," + str(list) + ">"
-    tuples = "Int_Float," + str(list)
+    token = "<Float_Literal," + str(list) + ">"
+    tuples = "Float_Literal," + str(list)
     mytokens.append(tuples)
     out = True
 
@@ -173,8 +154,8 @@ def Tokens(list):
   test = r.match(list)
 
   if test != None and out == False:  #checking for string literals
-    token = "<String Literal," + str(list) + ">"
-    tuples = "String Literal," + str(list)
+    token = "<String_Literal," + str(list) + ">"
+    tuples = "String_Literal," + str(list)
     mytokens.append(tuples)
     out = True
 
@@ -273,7 +254,7 @@ class LexerGUI:
       self.box2.insert(END, result[0] + "\n")
 
     new_list = list(tuple(item[0].split(',')) for item in mytokens)
-    parser(new_list)
+    makeParseTree(new_list) #Changed from calling parser() to calling makeParseTree()
     self.count += 1
     self.provalabel.config(text=self.count)
 

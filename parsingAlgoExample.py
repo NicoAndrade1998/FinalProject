@@ -64,11 +64,11 @@ def exp():
     print("Child node (internal): math")
     math()
         
-def main():
+def makeParseTree():
     global inToken
     inToken=Mytokens.pop(0)
     exp()
     if(inToken[1]==";"):
         print("\nparse tree building success!")
     return
-main()
+
