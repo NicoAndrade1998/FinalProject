@@ -1,10 +1,14 @@
 ''' Original file by Edgar Fong
-    Modified by Nico Andrade 5-10-2023, 5-12-2023
+    Modified by Nico Andrade 5-10-2023, 5-12-2023, 5-15-2023
     Modified by Saul Romero  
 '''
+
+# Traceback: 260 -> 81 -> 54 -> 20
+
 from tkinter import *
 from tkinter import messagebox
 import re
+from ply import yacc
 
 inToken = ("empty", "empty")
 Mytokens = [] 
@@ -14,7 +18,7 @@ def accept_token():
   global inToken
   global Mytokens
   print("     accept token from the list:" + inToken[1])
-  inToken = Mytokens.pop(0)
+  #inToken = Mytokens.pop(0)
 
 
 def math():
@@ -43,8 +47,8 @@ def math():
 
 def exp():
     print("\n----parent node exp, finding children nodes:")
-    global inToken;
-    typeT,token=inToken;
+    global inToken
+    typeT,token=inToken
     if(typeT=="Identifier"):
         print("child node (internal): identifier")
         print("   identifier has child node (token):"+token)
@@ -52,8 +56,8 @@ def exp():
     else:
         print("expect identifier as the first element of the expression!\n")
         return
-
-    if(inToken[1]=="="):
+    print("inToken[2] = " + inToken[1])
+    if(inToken[1]=="Operator,="):
         print("child node (token):"+inToken[1])
         accept_token()
     else:
