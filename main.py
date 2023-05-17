@@ -1,6 +1,7 @@
 ''' Original file by Edgar Fong
     Modified by Nico Andrade 5-10-2023, 5-12-2023, 5-15-2023
-    Modified by Saul Romero  
+    Modified by Saul Romero 
+    Tree class borrowed from  https://www.tutorialspoint.com/python_data_structure/python_binary_tree.htm
 '''
 
 # Traceback: 260 -> 81 -> 54 -> 20
@@ -13,78 +14,71 @@ from ply import yacc
 inToken = ("empty", "empty")
 Mytokens = [] 
 
-
-def accept_token():
-  global inToken
-  global Mytokens
-  print("     accept token from the list:" + inToken[1])
-  #inToken = Mytokens.pop(0)
+tokens = (
+    'Int_literal', 'Float_literal', 'Operator', 'String_literal', 'Separator', 'Keyword', 'Identifier'
+)
 
 
-def math():
-    print("\n----parent node math, finding children nodes:")
+class Node:
+   def __init__(self, data):
+      self.left = None
+      self.right = None
+      self.data = data
+# Insert Node
+   def insert(self, data):
+      if self.data:
+         if data < self.data:
+            if self.left is None:
+               self.left = Node(data)
+            else:
+               self.left.insert(data)
+         elif data > self.data:
+            if self.right is None:
+               self.right = Node(data)
+            else:
+               self.right.insert(data)
+      else:
+         self.data = data
+# Print the Tree
+   def PrintTree(self):
+      if self.left:
+         self.left.PrintTree()
+      print( self.data),
+      if self.right:
+         self.right.PrintTree()
+# Inorder traversal
+# Left -> Root -> Right
+   def inorderTraversal(self, root):
+      res = []
+      if root:
+         res = self.inorderTraversal(root.left)
+         res.append(root.data)
+         res = res + self.inorderTraversal(root.right)
+      return res
+
+def testTree ():
+    myTree = Node(10)
+    myTree.insert( 5)
+    myTree.insert( 2)
+    myTree.insert( 7)
+    myTree.insert( 12)
+
+    myTree.PrintTree()
+
+
+
+def makeParseTree(MytokenList):
     global inToken
-    if(inToken[0]=="Float_Literal"):
-        print("child node (internal): float")
-        print("   float has child node (token):"+inToken[1])
-        accept_token()
-    elif (inToken[0]=="Int_Literal"):
-        print("child node (internal): int")
-        print("   int has child node (token):"+inToken[1])
-        accept_token()
-
-        if(inToken[1]=="+"):
-            print("child node (token):"+inToken[1])
-            accept_token()
-
-            print("child node (internal): math")
-            math()
-        else:
-            print("error, you need + after the int in the math")
-
-    else:
-        print("error, math expects float or int")
-
-def exp():
-    print("\n----parent node exp, finding children nodes:")
-    global inToken
-    typeT,token=inToken
-    if(typeT=="Identifier"):
-        print("child node (internal): identifier")
-        print("   identifier has child node (token):"+token)
-        accept_token()
-    else:
-        print("expect identifier as the first element of the expression!\n")
-        return
-    print("inToken[2] = " + inToken[1])
-    if(inToken[1]=="Operator,="):
-        print("child node (token):"+inToken[1])
-        accept_token()
-    else:
-        print("expect = as the second element of the expression!")
-        return
-
-    print("Child node (internal): math")
-    math()
-
-
-def parser(Mytokens):
-  global inToken
-  inToken = Mytokens.pop(0)
-  exp(Mytokens)
-  if (inToken[1] == ";"):
-    print("\nparse tree building success!")
-
-
-def makeParseTree(Mytokens):
-    global inToken
-    inToken=Mytokens.pop(0)
-    exp()
-    if(inToken[1]==";"):
+    inToken=MytokenList.pop(0)
+    #exp()
+    #print (inToken[0]) 
+    #print (inToken[1])
+    if(inToken[1]== ';'):
         print("\nparse tree building success!")
     return
 
 
+#CutOneLineTokens splits input into separate tokens
 def CutOneLineTokens(sample):
   newList = []
   str1 = ""
@@ -122,7 +116,7 @@ def CutOneLineTokens(sample):
   print(newList)
   return newList
 
-
+#Tokens lexes tokens and determines what type they are
 def Tokens(list):
   r = re.compile(r'^\d+$')  #checking if its an int
   out = False
@@ -196,7 +190,7 @@ def Tokens(list):
 
 
 class LexerGUI:
-
+  #creates main GUI window
   def __init__(self, root):
     self.master = root
     self.master.title("Lexer and Parser for TinyPie")
@@ -233,6 +227,7 @@ class LexerGUI:
     self.quitb = Button(self.master, text="Quit", command=myTkRoot.quit)
     self.quitb.grid(column=1, row=3, sticky=E, padx=(0, 35))
 
+  #gonextline is called when the next line button is pressed. It will call the lexer and parser and display the corresponding results on screen  
   def gonextline(self):
     mytokens = []
     #getting user input from txt box
@@ -258,6 +253,7 @@ class LexerGUI:
       self.box2.insert(END, result[0] + "\n")
 
     new_list = list(tuple(item[0].split(',')) for item in mytokens)
+    print (new_list)
     makeParseTree(new_list) #Changed from calling parser() to calling makeParseTree()
     self.count += 1
     self.provalabel.config(text=self.count)
@@ -270,6 +266,7 @@ class LexerGUI:
 
 
 if __name__ == '__main__':
+  testTree()
   myTkRoot = Tk()
   my_gui = LexerGUI(myTkRoot)
   myTkRoot.geometry("830x250")
