@@ -1,5 +1,6 @@
 from tkinter import *
 from tkinter import messagebox
+from tkinter import ttk
 import re
 
 inToken = ("empty", "empty")
@@ -225,6 +226,11 @@ class LexerGUI:
     #creating parser label
     self.parselabel = Label(self.master, text="Parse Tree")
     self.parselabel.grid(row=0, column=2, sticky=W, padx=15, pady=(10, 0))
+
+    #creting parse tree label
+    self.treelabel = Label (self.master, text="Parse Tree")
+    self.treelabel.grid(row=0, column=3, sticky=W, padx=15, pady=(10,0))
+
     #creating input text box
     self.box1 = Text(self.master, width=30, height=10)
     self.box1.grid(row=1, column=0, sticky=W, padx=15)
@@ -234,6 +240,11 @@ class LexerGUI:
     #creating parser text box
     self.box3 = Text(self.master, width=30, height=10)
     self.box3.grid(row=1, column=2, sticky=W, padx=15)
+    
+    #creating tree visual box
+    self.box4 = ttk.Treeview()
+    self.box4.grid(row=1, column=4, sticky=W, padx=15)
+    
     #creating line proccess label
     self.prolabel = Label(self.master, text="Current Processing Line: ")
     self.prolabel.grid(row=2, column=0, sticky=W, padx=15)
@@ -248,7 +259,18 @@ class LexerGUI:
     self.quitb = Button(self.master, text="Quit", command=myTkRoot.quit)
     self.quitb.grid(column=1, row=3, sticky=E, padx=(0, 35))
 
+  def populateTree(self):
+        self.box4["columns"] = ("name", "age", "city")
+        self.box4.heading("#0", text="ID")
+        self.box4.heading("name", text="Name")
+        self.box4.heading("age", text="Age")
+        self.box4.heading("city", text="City")
+
+        self.box4.insert("", "end", text="1", values=("John Doe", "25", "New York"))
+        self.box4.insert("", "end", text="2", values=("Jane Smith", "30", "London"))     
+
   def gonextline(self):
+    self.populateTree()
     mytokens = []
     #getting user input from txt box
     text = self.box1.get("1.0", "end")
@@ -284,9 +306,12 @@ class LexerGUI:
       )
 
 
+
 if __name__ == '__main__':
-  myTkRoot = Tk()
-  my_gui = LexerGUI(myTkRoot)
-  myTkRoot.geometry("830x250")
-  myTkRoot.resizable(False, False)
-  myTkRoot.mainloop()
+    myTkRoot = Tk()
+    my_gui = LexerGUI(myTkRoot)
+    myTkRoot.geometry("1800x350")
+    myTkRoot.resizable(False, False)
+    myTkRoot.mainloop()
+
+
