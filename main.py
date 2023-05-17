@@ -3,9 +3,9 @@ from tkinter import messagebox
 from tkinter import ttk
 import re
 
+Mytokens = []
 inToken = ("empty", "empty")
-
-
+'''
 def accept_token(Mytokens):
   global inToken
   print("     accept token from the list:" + inToken[1])
@@ -99,7 +99,98 @@ def parser(Mytokens):
   exp(Mytokens)
   if (inToken[1] == ";"):
     print("\nparse tree building success!")
+'''
 
+
+def accept_token(Mytokens):
+  global inToken
+  print("     accept token from the list:" + inToken[1])
+  inToken = Mytokens.pop(0)
+
+
+def multi(Mytokens):
+  print("\n----parent node multi, finding children nodes:")
+  global inToken
+  if (inToken[0] == "float"):
+    print("child node (internal): float")
+    print("   float has child node (token):" + inToken[1])
+    accept_token(Mytokens)
+  elif (inToken[0] == "int"):
+    print("child node (internal): int")
+    print("   int has child node (token):" + inToken[1])
+    accept_token(Mytokens)
+
+    if (inToken[1] == "*"):
+      print("child node (token):" + inToken[1])
+      accept_token(Mytokens)
+
+      print("child node (internal): multi")
+      multi(Mytokens)
+    else:
+      print("error, you need * after the int in the math")
+
+
+def math(Mytokens):
+  print("\n----parent node math, finding children nodes:")
+  global inToken
+
+  # for a statement to be multi the first item has to be a float or the second has to be a *
+  if inToken[0] == "float" or Mytokens[0][1] == "*":
+    print("child node (internal): multi")
+    multi(Mytokens)
+  else:
+    print("error, math expects multi as the first element of the expression")
+
+  if (inToken[1] == "+"):  # this will not detect if the value to the right is a multi
+    print("child node (token):" + inToken[1])
+    accept_token(Mytokens)
+
+    print("child node (internal): multi")
+    multi(Mytokens)
+
+
+  else:
+    print("error, math expects + as the second element of the expression")
+    print("actual {}".format(inToken[1]))
+
+
+def exp(Mytokens):
+  print("\n----parent node exp, finding children nodes:")
+  global inToken;
+  typeT, token = inToken;
+  if (typeT == "key"):
+    print("child node (internal): key")
+    print("   key has child node (token):" + token)
+    accept_token(Mytokens)
+  else:
+    print("expect key as the first element of the expression!\n")
+    return
+
+  if (inToken[0] == "id"):
+    print("child node (internal): identifier")
+    print("   identifier has child node (token):" + inToken[1])
+    accept_token(Mytokens)
+  else:
+    print("expect id as the second element of the expression!")
+    print("Actual {}".format(inToken[1]))
+    return
+  if (inToken[1] == "="):
+    print("child node (token):" + inToken[1])
+    accept_token(Mytokens)
+  else:
+    print("expect = as the third element of the expression!")
+    return
+  print("child node (internal): math")
+  math(Mytokens)
+
+
+def parser(Mytokens):
+  global inToken
+  inToken = Mytokens.pop(0)
+  exp(Mytokens)
+  if (inToken[1] == ";"):
+    print("\nparse tree building success!")
+  return
 
 def CutOneLineTokens(sample):
   newList = []
@@ -147,8 +238,8 @@ def Tokens(list):
   mytokens = []
 
   if test != None:  #checking for int
-    token = "<Int_Lit," + str(list) + ">"
-    tuples = "Int_Lit," + str(list)
+    token = "<int," + str(list) + ">"
+    tuples = "int," + str(list)
     mytokens.append(tuples)
     out = True
 
@@ -156,8 +247,8 @@ def Tokens(list):
   test = r.match(list)
 
   if test != None and out == False:  #checking for float
-    token = "<Int_Float," + str(list) + ">"
-    tuples = "Int_Float," + str(list)
+    token = "<float," + str(list) + ">"
+    tuples = "float," + str(list)
     mytokens.append(tuples)
     out = True
 
@@ -165,8 +256,8 @@ def Tokens(list):
   test = r.match(list)
 
   if test != None and out == False:  #checking for operators
-    token = "<Operator," + str(list) + ">"
-    tuples = "Operator," + str(list)
+    token = "<op," + str(list) + ">"
+    tuples = "op," + str(list)
     mytokens.append(tuples)
     out = True
 
@@ -194,19 +285,19 @@ def Tokens(list):
   if test != None and out == False:  #checking for string literals and key words
     #sincekeywords and string literals match regex
     if list == "if" or list == "else" or list == "float" or list == "int":
-      token = "<Keyword," + str(list) + ">"
-      tuples = "Keyword," + str(list)
+      token = "<key," + str(list) + ">"
+      tuples = "key," + str(list)
       mytokens.append(tuples)
 
     else:
-      token = "<Identifier," + str(list) + ">"
-      tuples = "Identifier," + str(list)
+      token = "<id," + str(list) + ">"
+      tuples = "id," + str(list)
       mytokens.append(tuples)
     out = True
 
   if out == False:  #only thing left would be identifiers
-    token = "<Identifier," + str(list) + ">"
-    tuples = "Identifier," + str(list)
+    token = "<id," + str(list) + ">"
+    tuples = "id," + str(list)
     mytokens.append(tuples)
   return token, mytokens
 
