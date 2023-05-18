@@ -222,7 +222,8 @@ def if_exp(Mytokens, box3, box4):
   if (inToken[1] == "("):
     #print("child node (token): (")
     box3.insert(END, "child node (token): (\n")
-
+    box4.insert('if_exp', 'end', '(', text= '(')
+    box4.insert('if_exp', 'end', 'x', text= str(Mytokens[0][1]))
     accept_token(Mytokens, box3, box4)
   else:
     #print("expect ( as the second element of the expression!\n")
@@ -232,6 +233,8 @@ def if_exp(Mytokens, box3, box4):
   if (Mytokens[0][1] == ">"):
     #print("child node (internal) comparison_exp")
     box3.insert(END, "child node (internal) comparison_exp\n")
+    box4.insert('if_exp', 'end', '>', text= '>')
+    box4.insert('if_exp', 'end', 'y', text= str(Mytokens[1][1]))
     comparison_exp(Mytokens, box3, box4)
   else:
     #print("error, if_exp expects comparison_exp as the third element of the expression")
@@ -241,6 +244,7 @@ def if_exp(Mytokens, box3, box4):
   if (inToken[1] == ")"):
     #print("child node (token): )")
     box3.insert(END, "child node (token): )\n")
+    box4.insert('if_exp', 'end', ')', text= ')')
     accept_token(Mytokens, box3, box4)
   else:
     #print("expected ) as the fourth element of the expression")
