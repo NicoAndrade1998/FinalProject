@@ -9,104 +9,6 @@ multidepth = 0
 floatdepth = 0
 strdepth = 0
 
-'''
-def accept_token(Mytokens):
-  global inToken
-  print("     accept token from the list:" + inToken[1])
-  inToken = Mytokens.pop(0)
-
-
-def math(Mytokens):
-  print("\n----parent node math, finding children nodes:")
-  global inToken 
-  if (inToken[0] == "Int_Float"):
-    print("child node (internal): float")
-    print("    float has child node (token):" + inToken[1])
-    accept_token(Mytokens)
-
-    if (inToken[1] == "+"):
-      print("child node (token):" + inToken[1])
-      accept_token(Mytokens)
-
-      print("child node (internal): math")
-      math(Mytokens)
-
-    elif (inToken[1] == "*"):
-      print("child node (token):" + inToken[1])
-      accept_token(Mytokens)
-
-      print("child node (internal): math")
-      math(Mytokens)
-
-  elif (inToken[0] == "Int_Lit"):
-    print("child node (internal): int")
-    print("   int has child node (token):" + inToken[1])
-    accept_token(Mytokens)
-
-    if (inToken[1] == "+"):
-      print("child node (token):" + inToken[1])
-      accept_token(Mytokens)
-
-      print("child node (internal): math")
-      math(Mytokens)
-
-    elif (inToken[1] == "*"):
-      print("child node (token):" + inToken[1])
-      accept_token(Mytokens)
-
-      print("child node (internal): math")
-      math(Mytokens)
-
-    else:
-      print("error, you need + after the int in the math")
-
-  else:
-    print("error, math expects float or int")
-
-
-def exp(Mytokens):
-  print("\n----parent node exp, finding children nodes:")
-  global inToken
-  typeT, token = inToken
-  if (typeT == "Keyword"):
-    print("child node (internal): keyword")
-    print("   Keyword has child node (token):" + token)
-    accept_token(Mytokens)
-  else:
-    print("expect Keyword as the first element of the expression!\n")
-    return
-
-  typeT, token = inToken
-  print(inToken[0])
-  if (typeT == "Identifier"):
-    print("child node (token):" + token)
-    accept_token(Mytokens)
-  else:
-    print("expect identifier as the second element of the expression!")
-    return
-
-  typeT, token = inToken
-  if (token == "="):
-    print("child node (token):" + token)
-    accept_token(Mytokens)
-  else:
-    print("expect = as the third element of the expression!")
-    return
-
-  print("Child node (internal): math")
-  math(Mytokens)
-
-
-def parser(Mytokens):
-  global inToken
-  inToken = Mytokens.pop(0)
-  exp(Mytokens)
-  if (inToken[1] == ";"):
-    print("\nparse tree building success!")
-'''
-
-
-
 
 def accept_token(Mytokens, box3, box4):
   global inToken
@@ -509,7 +411,14 @@ def Tokens(list):
   return token, mytokens
 
 
+
+
+
 class LexerGUI:
+
+  def reset_treeview(self):
+    self.box4.delete(*self.box4.get_children())
+  
 
   def __init__(self, root):
     self.master = root
@@ -530,18 +439,18 @@ class LexerGUI:
     self.treelabel.grid(row=0, column=3, sticky=W, padx=15, pady=(10,0))
 
     #creating input text box
-    self.box1 = Text(self.master, width=30, height=10)
+    self.box1 = Text(self.master, width=50, height=25)
     self.box1.grid(row=1, column=0, sticky=W, padx=15)
     #creating output text box
-    self.box2 = Text(self.master, width=30, height=10)
+    self.box2 = Text(self.master, width=50, height=25)
     self.box2.grid(row=1, column=1, sticky=W, padx=15)
     #creating parser text box
-    self.box3 = Text(self.master, width=30, height=10)
+    self.box3 = Text(self.master, width=50, height=25)
     self.box3.grid(row=1, column=2, sticky=W, padx=15)
     
     #creating tree visual box
     self.box4 = ttk.Treeview()
-    self.box4.grid(row=1, column=4, sticky=W, padx=15)
+    self.box4.grid(row=1, column=4, sticky='NSEW', padx=0)
     
     #creating line proccess label
     self.prolabel = Label(self.master, text="Current Processing Line: ")
@@ -556,6 +465,10 @@ class LexerGUI:
     #creating quit button
     self.quitb = Button(self.master, text="Quit", command=myTkRoot.quit)
     self.quitb.grid(column=1, row=3, sticky=E, padx=(0, 35))
+
+    #creating a reset button for treeview
+    self.reset = Button(self.master, text="Reset", command=self.reset_treeview)
+    self.reset.grid(column=3, row=3, sticky=E, padx=(0, 35))
 
   def populateTree(self):   #used for testing and reference purposes. -Nico
     #Inserting parent
@@ -572,6 +485,8 @@ class LexerGUI:
     self.box4.move('item3', 'item1', 'end')
     self.box4.move('item4', 'item1', 'end')
     self.box4.move('item5', 'item1', 'end')
+
+    
 
   def gonextline(self):
     #self.populateTree()
@@ -613,6 +528,6 @@ class LexerGUI:
 if __name__ == '__main__':
   myTkRoot = Tk()
   my_gui = LexerGUI(myTkRoot)
-  myTkRoot.geometry("2000x1000")
+  myTkRoot.geometry("1700x500")
   myTkRoot.resizable(False, False)
   myTkRoot.mainloop()
