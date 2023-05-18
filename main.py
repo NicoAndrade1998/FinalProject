@@ -14,7 +14,7 @@ def accept_token(Mytokens):
 
 def math(Mytokens):
   print("\n----parent node math, finding children nodes:")
-  global inToken
+  global inToken 
   if (inToken[0] == "Int_Float"):
     print("child node (internal): float")
     print("    float has child node (token):" + inToken[1])
@@ -180,8 +180,7 @@ def math(Mytokens, box3, box4):
 def exp(Mytokens, box3, box4):
   #print("\n----parent node exp, finding children nodes:")
   box3.insert(END, "\n----parent node exp, finding children nodes:\n")
-  box4.insert('', '0', 'exp', text= 'EXP:-')
-
+  box4.insert('', '0', 'exp', text= 'exp')
   global inToken
   typeT, token = inToken
   if (typeT == "key"):
@@ -439,7 +438,7 @@ class LexerGUI:
     if self.count == len(lines):
       messagebox.showerror(
         "Error",
-        "All values in input box have been processed and th next line is empty"
+        "All values in input box have been processed and the next line is empty"
       )
 
 
