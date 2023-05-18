@@ -274,21 +274,21 @@ def multi(Mytokens, box3, box4):
     box3.insert(END, "child node (internal): int\n")
     print("   int has child node (token):" + inToken[1])
     box3.insert(END, "   int has child node (token):" + inToken[1] + "\n")
-    box4.insert('math', 'end', 'int', text='int: ' + inToken[1])
+    box4.insert('multi' + str(multidepth), 'end', 'int', text='int: ' + inToken[1])
     accept_token(Mytokens, box3, box4)
 
-    if (inToken[1] == "*"):
-      print("child node (token):" + inToken[1])
-      box3.insert(END, "child node (token):" + inToken[1] + "\n")
-      accept_token(Mytokens, box3, box4)
+  if (inToken[1] == "*"):
+    print("child node (token):" + inToken[1])
+    box3.insert(END, "child node (token):" + inToken[1] + "\n")
+    accept_token(Mytokens, box3, box4)
 
-      print("child node (internal): multi")
-      box3.insert(END, "child node (internal): multi\n")
-      box4.insert('multi' + str(multidepth), 'end', '*', text= '*')
-      multi(Mytokens, box3, box4)
-    else:
-      print("error, you need * after the int in the math")
-      box3.insert(END, "error, you need * after the int in the math\n")
+    print("child node (internal): multi")
+    box3.insert(END, "child node (internal): multi\n")
+    box4.insert('multi' + str(multidepth), 'end', '*', text= '*')
+    multi(Mytokens, box3, box4)
+  else:
+    print("error, you need * after the int in the math")
+    box3.insert(END, "error, you need * after the int in the math\n")
 
 
 def math(Mytokens, box3, box4):
@@ -309,8 +309,7 @@ def math(Mytokens, box3, box4):
   if (inToken[1] == "+"):  # this will not detect if the value to the right is a multi
     print("child node (token):" + inToken[1])
     box3.insert(END, "child node (token):" + inToken[1] + "\n")
-    box4.insert('', 'end', '+', text='+')
-    box4.move('+', 'math', 'end')
+    box4.insert('math', 'end', '+', text='+')
     accept_token(Mytokens, box3, box4)
 
     print("child node (internal): multi")
