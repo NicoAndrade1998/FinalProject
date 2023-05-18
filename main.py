@@ -102,122 +102,248 @@ def parser(Mytokens):
 '''
 
 
+
+
 def accept_token(Mytokens, box3, box4):
   global inToken
   #print("     accept token from the list:" + inToken[1])
   box3.insert(END, "     accept token from the list:" + inToken[1] + "\n")
   inToken = Mytokens.pop(0)
 
+def print_exp(Mytokens, box3, box4):
+  #print("\n----parent node if_exp, finding children nodes:")
+  box3.insert(END,"\n----parent node if_exp, finding children nodes:\n")
+  global inToken
+  typeT, token = inToken
+
+  if (token == "print"):
+    #print("child node (token): print")
+    box3.insert(END, "child node (token): print\n")
+    accept_token(Mytokens, box3, box4)
+  else:
+    #print("expect print as the first element of the expression!\n")
+    box3.insert(END, "expect print as the first element of the expression!\n")
+    return
+
+  if (inToken[1] == "("):
+    #print("child node (token): (")
+    box3.insert(END, "child node (token): (\n")
+    accept_token(Mytokens, box3, box4)
+  else:
+    #print("expect ( as the second element of the expression!\n")
+    box3.insert(END, "expect ( as the second element of the expression!\n\n")
+    return
+
+  if (inToken[0] == "string_literal"):
+    #print("child node (internal): string_literal")
+    box3.insert(END, "child node (internal): string_literal\n")
+    #print("    string_literal has child node (token):" + inToken[1])
+    box3.insert(END, "    string_literal has child node (token):" + inToken[1] + "\n")
+    accept_token(Mytokens, box3, box4)
+  else:
+    #print("expect string_literal as the third element of the expression!\n")
+    box3.insert(END, "expect string_literal as the third element of the expression!\n")
+    return
+
+  if (inToken[1] == ")"):
+    #print("child node (token): )")
+    box3.insert(END, "child node (token): )\n")
+    accept_token(Mytokens, box3, box4)
+  else:
+    #print("expect ) as the fourth element of the expression!\n")
+    box3.insert(END, "expect ) as the fourth element of the expression!\n\n")
+    return
+
+
+def comparison_exp(Mytokens, box3, box4):
+  #print("\n----parent node comparison_exp, finding children nodes:")
+  box3.insert(END, "\n----parent node comparison_exp, finding children nodes:\n")
+  global inToken
+
+  if (inToken[0] == "id"):
+    #print("child node (internal): identifier")
+    box3.insert(END, "child node (internal): identifier\n")
+    #print("    identifier has child node (token):" + inToken[1])
+    box3.insert(END, "    identifier has child node (token):" + inToken[1] + "\n")
+    accept_token(Mytokens, box3, box4)
+  else:
+    #print("expect id as the first element of the comparison expression")
+    box3.insert(END, "expect id as the first element of the comparison expression\n")
+    return
+
+  if (inToken[1] == ">"):
+    #print("child node (token): " + inToken[1])
+    box3.insert(END, "child node (token): " + inToken[1] + "\n")
+    accept_token(Mytokens, box3, box4)
+  else:
+    print("expect > as the second element of the comparison expression")
+    box3.insert(END, "expect > as the second element of the comparison expression\n")
+    return
+
+  if (inToken[0] == "id"):
+    #print("child node (internal): identifier")
+    box3.insert(END, "child node (internal): identifier\n")
+    #print("    identifier has child node (token):" + inToken[1])
+    box3.insert(END, "    identifier has child node (token):" + inToken[1] + "\n")
+    accept_token(Mytokens, box3, box4)
+  else:
+    #print("expect id as the third element of the comparison expression")
+    box3.insert(END, "expect id as the third element of the comparison expression\n")
+    return
+
+
+def if_exp(Mytokens, box3, box4):
+  #print("\n----parent node if_exp, finding children nodes:")
+  box3.insert(END, "\n----parent node if_exp, finding children nodes:\n")
+  global inToken
+  typeT, token = inToken
+  if (token == "if"):
+    #print("child node (token): if")
+    box3.insert(END, "child node (token): if\n")
+    accept_token(Mytokens, box3, box4)
+  else:
+    #print("expect if as the first element of the expression!\n")
+    box3.insert(END, "expect if as the first element of the expression!\n\n")
+    return
+
+  if (inToken[1] == "("):
+    #print("child node (token): (")
+    box3.insert(END, "child node (token): (\n")
+    accept_token(Mytokens, box3, box4)
+  else:
+    #print("expect ( as the second element of the expression!\n")
+    box3.insert(END, "expect ( as the second element of the expression!\n\n")
+    return
+
+  if (Mytokens[0][1] == ">"):
+    #print("child node (internal) comparison_exp")
+    box3.insert(END, "child node (internal) comparison_exp\n")
+    comparison_exp(Mytokens, box3, box4)
+  else:
+    #print("error, if_exp expects comparison_exp as the third element of the expression")
+    box3.insert(END, "error, if_exp expects comparison_exp as the third element of the expression\n")
+    return  # not sure if this is necessary
+
+  if (inToken[1] == ")"):
+    #print("child node (token): )")
+    box3.insert(END, "child node (token): )\n")
+    accept_token(Mytokens, box3, box4)
+  else:
+    #print("expected ) as the fourth element of the expression")
+    box3.insert(END, "expected ) as the fourth element of the expression\n")
+
+  print()
+
 
 def multi(Mytokens, box3, box4):
-  #print("\n----parent node multi, finding children nodes:")
+  print("\n----parent node multi, finding children nodes:")
   box3.insert(END, "\n----parent node multi, finding children nodes:\n")
   box4.insert('math', 'end', 'multi', text= 'multi')
   global inToken
   if (inToken[0] == "float"):
-    #print("child node (internal): float")
+    print("child node (internal): float")
     box3.insert(END, "child node (internal): float\n")
-    #print("   float has child node (token):" + inToken[1])
+    print("   float has child node (token):" + inToken[1])
     box3.insert(END, "   float has child node (token):" + inToken[1] + "\n")
     box4.insert('multi', 'end', 'float', text= 'float: ' + inToken[1])
     accept_token(Mytokens, box3, box4)
   elif (inToken[0] == "int"):
-    #print("child node (internal): int")
+    print("child node (internal): int")
     box3.insert(END, "child node (internal): int\n")
-    #print("   int has child node (token):" + inToken[1])
+    print("   int has child node (token):" + inToken[1])
     box3.insert(END, "   int has child node (token):" + inToken[1] + "\n")
     box4.insert('math', 'end', 'int', text='int: ' + inToken[1])
     accept_token(Mytokens, box3, box4)
 
     if (inToken[1] == "*"):
-      #print("child node (token):" + inToken[1])
+      print("child node (token):" + inToken[1])
       box3.insert(END, "child node (token):" + inToken[1] + "\n")
       accept_token(Mytokens, box3, box4)
 
-      #print("child node (internal): multi")
+      print("child node (internal): multi")
       box3.insert(END, "child node (internal): multi\n")
       box4.insert('multi', 'end', '*', text= '*')
       multi(Mytokens, box3, box4)
     else:
-      #print("error, you need * after the int in the math")
+      print("error, you need * after the int in the math")
       box3.insert(END, "error, you need * after the int in the math\n")
 
 
 def math(Mytokens, box3, box4):
-  #print("\n----parent node math, finding children nodes:")
+  print("\n----parent node math, finding children nodes:")
   box3.insert(END, "\n----parent node math, finding children nodes:\n")
   box4.insert('exp', 'end', 'math', text= 'math')
   global inToken
 
   # for a statement to be multi the first item has to be a float or the second has to be a *
   if inToken[0] == "float" or Mytokens[0][1] == "*":
-    #print("child node (internal): multi")
+    print("child node (internal): multi")
     box3.insert(END, "child node (internal): multi\n")
     multi(Mytokens, box3,box4)
   else:
-    #print("error, math expects multi as the first element of the expression")
+    print("error, math expects multi as the first element of the expression")
     box3.insert(END, "error, math expects multi as the first element of the expression\n")
 
   if (inToken[1] == "+"):  # this will not detect if the value to the right is a multi
-    #print("child node (token):" + inToken[1])
+    print("child node (token):" + inToken[1])
     box3.insert(END, "child node (token):" + inToken[1] + "\n")
     box4.insert('', 'end', '+', text='+')
     box4.move('+', 'math', 'end')
     accept_token(Mytokens, box3, box4)
 
-    #print("child node (internal): multi")
+    print("child node (internal): multi")
     box3.insert(END, "child node (internal): multi\n")
     multi(Mytokens, box3, box4)
 
 
   else:
-    #print("error, math expects + as the second element of the expression")
+    print("error, math expects + as the second element of the expression")
     box3.insert(END, "error, math expects + as the second element of the expression\n")
-    #print("actual {}".format(inToken[1]))
+    print("actual {}".format(inToken[1]))
     box3.insert(END, "actual {}\n".format(inToken[1]))
 
 
 def exp(Mytokens, box3, box4):
-  #print("\n----parent node exp, finding children nodes:")
+  print("\n----parent node exp, finding children nodes:")
   box3.insert(END, "\n----parent node exp, finding children nodes:\n")
   box4.insert('', '0', 'exp', text= 'exp')
   global inToken
   typeT, token = inToken
   if (typeT == "key"):
-    #print("child node (internal): key")
+    print("child node (internal): key")
     box3.insert(END, "child node (internal): key\n")
     box4.insert('exp', '1', 'key', text='keyword: ' + token)
-    #print("   key has child node (token):" + token)
+    print("   key has child node (token):" + token)
     box3.insert(END, "   key has child node (token):" + token + "\n")
     accept_token(Mytokens, box3, box4)
   else:
-    #print("expect key as the first element of the expression!\n")
+    print("expect key as the first element of the expression!\n")
     box3.insert(END, "expect key as the first element of the expression!\n\n")
     return
 
   if (inToken[0] == "id"):
-    #print("child node (internal): identifier")
+    print("child node (internal): identifier")
     box3.insert(END, "child node (internal): identifier\n")
     box4.insert('exp', '2', 'id', text='id: ' + inToken[1])
-    #print("   identifier has child node (token):" + inToken[1])
+    print("   identifier has child node (token):" + inToken[1])
     box3.insert(END, "   identifier has child node (token):" + inToken[1] + "\n")
     accept_token(Mytokens, box3, box4)
   else:
-    #print("expect id as the second element of the expression!")
-    box3.insert(END, "expect id as the second element of the expression!\n")\
-    #print("Actual {}".format(inToken[1]))
+    print("expect id as the second element of the expression!")
+    box3.insert(END, "expect id as the second element of the expression!\n")
+    print("Actual {}".format(inToken[1]))
     box3.insert(END, "Actual {}\n".format(inToken[1]))
     return
   if (inToken[1] == "="):
-    #print("child node (token):" + inToken[1])
+    print("child node (token):" + inToken[1])
     box3.insert(END, "child node (token):" + inToken[1] + "\n")
     box4.insert('exp', '3', '=', text='=')
     accept_token(Mytokens, box3, box4)
   else:
-    #print("expect = as the third element of the expression!")
+    print("expect = as the third element of the expression!")
     box3.insert(END, "expect = as the third element of the expression!\n")
     return
-  #print("child node (internal): math")
+  print("child node (internal): math")
   box3.insert(END, "child node (internal): math\n")
   math(Mytokens, box3, box4)
 
@@ -225,11 +351,32 @@ def exp(Mytokens, box3, box4):
 def parser(Mytokens, box3, box4):
   global inToken
   inToken = Mytokens.pop(0)
-  exp(Mytokens, box3, box4)
+  #exp(Mytokens, box3, box4)
+  #if_exp(Mytokens, box3, box4)
+  '''
   if (inToken[1] == ";"):
     #print("\nparse tree building success!")
     box3.insert(END, "\nparse tree building success!\n")
   return
+  '''
+  if (inToken[1] == "if"):
+    if_exp(Mytokens, box3, box4)
+    if (inToken[1] == ":"):
+      # print("\nparse tree building success!")
+      box3.insert(END, "\nparse tree building success!\n")
+    return
+  elif(inToken[1] == "int" or inToken[1] == "float"):
+    exp(Mytokens, box3, box4)
+    if (inToken[1] == ";"):
+      # print("\nparse tree building success!")
+      box3.insert(END, "\nparse tree building success!\n")
+    return
+  elif (inToken[1] == "print"):
+    print_exp(Mytokens, box3, box4)
+    if (inToken[1] == ";"):
+      # print("\nparse tree building success!")
+      box3.insert(END, "\nparse tree building success!\n")
+    return
 
 def CutOneLineTokens(sample):
   newList = []
@@ -304,8 +451,8 @@ def Tokens(list):
   test = r.match(list)
 
   if test != None and out == False:  #checking for string literals
-    token = "<String Literal," + str(list) + ">"
-    tuples = "String Literal," + str(list)
+    token = "<string_literal," + str(list) + ">"
+    tuples = "string_literal," + str(list)
     mytokens.append(tuples)
     out = True
 
