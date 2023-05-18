@@ -7,6 +7,7 @@ Mytokens = []
 inToken = ("empty", "empty")
 multidepth = 0
 floatdepth = 0
+strdepth = 0
 
 '''
 def accept_token(Mytokens):
@@ -113,15 +114,18 @@ def accept_token(Mytokens, box3, box4):
   box3.insert(END, "     accept token from the list:" + inToken[1] + "\n")
   inToken = Mytokens.pop(0)
 
-def print_exp(Mytokens, box3, box4):
+def print_exp(Mytokens, box3, box4): 
+  global strdepth
   #print("\n----parent node if_exp, finding children nodes:")
   box3.insert(END,"\n----parent node if_exp, finding children nodes:\n")
+  box4.insert('', 'end', 'print_exp', text= 'print_expression')
   global inToken
   typeT, token = inToken
 
   if (token == "print"):
     #print("child node (token): print")
     box3.insert(END, "child node (token): print\n")
+    box4.insert('print_exp', 'end', 'print', text='print')
     accept_token(Mytokens, box3, box4)
   else:
     #print("expect print as the first element of the expression!\n")
@@ -131,6 +135,7 @@ def print_exp(Mytokens, box3, box4):
   if (inToken[1] == "("):
     #print("child node (token): (")
     box3.insert(END, "child node (token): (\n")
+    box4.insert('print_exp', 'end', '(', text= '(')
     accept_token(Mytokens, box3, box4)
   else:
     #print("expect ( as the second element of the expression!\n")
@@ -142,6 +147,8 @@ def print_exp(Mytokens, box3, box4):
     box3.insert(END, "child node (internal): string_literal\n")
     #print("    string_literal has child node (token):" + inToken[1])
     box3.insert(END, "    string_literal has child node (token):" + inToken[1] + "\n")
+    box4.insert('print_exp', 'end', 'string_literal' + str(strdepth), text = str(inToken[1]))
+    strdepth = strdepth + 1
     accept_token(Mytokens, box3, box4)
   else:
     #print("expect string_literal as the third element of the expression!\n")
@@ -151,6 +158,7 @@ def print_exp(Mytokens, box3, box4):
   if (inToken[1] == ")"):
     #print("child node (token): )")
     box3.insert(END, "child node (token): )\n")
+    box4.insert('print_exp', 'end', 'string_literal', text= ')')
     accept_token(Mytokens, box3, box4)
   else:
     #print("expect ) as the fourth element of the expression!\n")
@@ -198,11 +206,13 @@ def comparison_exp(Mytokens, box3, box4):
 def if_exp(Mytokens, box3, box4):
   #print("\n----parent node if_exp, finding children nodes:")
   box3.insert(END, "\n----parent node if_exp, finding children nodes:\n")
+  box4.insert('', 'end', 'if_exp', text='if_exp')
   global inToken
   typeT, token = inToken
   if (token == "if"):
     #print("child node (token): if")
     box3.insert(END, "child node (token): if\n")
+    box4.insert('if_exp', 'end', 'if', text='if')
     accept_token(Mytokens, box3, box4)
   else:
     #print("expect if as the first element of the expression!\n")
@@ -212,6 +222,7 @@ def if_exp(Mytokens, box3, box4):
   if (inToken[1] == "("):
     #print("child node (token): (")
     box3.insert(END, "child node (token): (\n")
+
     accept_token(Mytokens, box3, box4)
   else:
     #print("expect ( as the second element of the expression!\n")
@@ -251,7 +262,7 @@ def multi(Mytokens, box3, box4):
     box3.insert(END, "child node (internal): float\n")
     print("   float has child node (token):" + inToken[1])
     box3.insert(END, "   float has child node (token):" + inToken[1] + "\n")
-    box4.insert('multi' + str(floatdepth), 'end', 'float', text= 'float: ' + inToken[1])
+    box4.insert('multi' + str(multidepth), 'end', 'float' + str(floatdepth), text= 'float: ' + inToken[1])
     floatdepth = floatdepth + 1
     accept_token(Mytokens, box3, box4)
   elif (inToken[0] == "int"):
