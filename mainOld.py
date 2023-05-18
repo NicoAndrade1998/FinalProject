@@ -368,7 +368,7 @@ class LexerGUI:
 
 
   def gonextline(self):
-    #self.populateTree()
+    self.populateTree()
     mytokens = []
     #getting user input from txt box
     text = self.box1.get("1.0", "end")

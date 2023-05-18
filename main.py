@@ -102,53 +102,58 @@ def parser(Mytokens):
 '''
 
 
-def accept_token(Mytokens, box3):
+def accept_token(Mytokens, box3, box4):
   global inToken
   #print("     accept token from the list:" + inToken[1])
   box3.insert(END, "     accept token from the list:" + inToken[1] + "\n")
   inToken = Mytokens.pop(0)
 
 
-def multi(Mytokens, box3):
+def multi(Mytokens, box3, box4):
   #print("\n----parent node multi, finding children nodes:")
   box3.insert(END, "\n----parent node multi, finding children nodes:\n")
+  box4.insert('math', 'end', 'multi', text= 'multi')
   global inToken
   if (inToken[0] == "float"):
     #print("child node (internal): float")
     box3.insert(END, "child node (internal): float\n")
     #print("   float has child node (token):" + inToken[1])
     box3.insert(END, "   float has child node (token):" + inToken[1] + "\n")
-    accept_token(Mytokens, box3)
+    box4.insert('multi', 'end', 'float', text= 'float: ' + inToken[1])
+    accept_token(Mytokens, box3, box4)
   elif (inToken[0] == "int"):
     #print("child node (internal): int")
     box3.insert(END, "child node (internal): int\n")
     #print("   int has child node (token):" + inToken[1])
     box3.insert(END, "   int has child node (token):" + inToken[1] + "\n")
-    accept_token(Mytokens, box3)
+    box4.insert('math', 'end', 'int', text='int: ' + inToken[1])
+    accept_token(Mytokens, box3, box4)
 
     if (inToken[1] == "*"):
       #print("child node (token):" + inToken[1])
       box3.insert(END, "child node (token):" + inToken[1] + "\n")
-      accept_token(Mytokens, box3)
+      accept_token(Mytokens, box3, box4)
 
       #print("child node (internal): multi")
       box3.insert(END, "child node (internal): multi\n")
-      multi(Mytokens, box3)
+      box4.insert('multi', 'end', '*', text= '*')
+      multi(Mytokens, box3, box4)
     else:
       #print("error, you need * after the int in the math")
       box3.insert(END, "error, you need * after the int in the math\n")
 
 
-def math(Mytokens, box3):
+def math(Mytokens, box3, box4):
   #print("\n----parent node math, finding children nodes:")
   box3.insert(END, "\n----parent node math, finding children nodes:\n")
+  box4.insert('exp', 'end', 'math', text= 'math')
   global inToken
 
   # for a statement to be multi the first item has to be a float or the second has to be a *
   if inToken[0] == "float" or Mytokens[0][1] == "*":
     #print("child node (internal): multi")
     box3.insert(END, "child node (internal): multi\n")
-    multi(Mytokens, box3)
+    multi(Mytokens, box3,box4)
   else:
     #print("error, math expects multi as the first element of the expression")
     box3.insert(END, "error, math expects multi as the first element of the expression\n")
@@ -156,11 +161,13 @@ def math(Mytokens, box3):
   if (inToken[1] == "+"):  # this will not detect if the value to the right is a multi
     #print("child node (token):" + inToken[1])
     box3.insert(END, "child node (token):" + inToken[1] + "\n")
-    accept_token(Mytokens, box3)
+    box4.insert('', 'end', '+', text='+')
+    box4.move('+', 'math', 'end')
+    accept_token(Mytokens, box3, box4)
 
     #print("child node (internal): multi")
     box3.insert(END, "child node (internal): multi\n")
-    multi(Mytokens, box3)
+    multi(Mytokens, box3, box4)
 
 
   else:
@@ -170,17 +177,20 @@ def math(Mytokens, box3):
     box3.insert(END, "actual {}\n".format(inToken[1]))
 
 
-def exp(Mytokens, box3):
+def exp(Mytokens, box3, box4):
   #print("\n----parent node exp, finding children nodes:")
   box3.insert(END, "\n----parent node exp, finding children nodes:\n")
-  global inToken;
-  typeT, token = inToken;
+  box4.insert('', '0', 'exp', text= 'EXP:-')
+
+  global inToken
+  typeT, token = inToken
   if (typeT == "key"):
     #print("child node (internal): key")
     box3.insert(END, "child node (internal): key\n")
+    box4.insert('exp', '1', 'key', text='keyword: ' + token)
     #print("   key has child node (token):" + token)
     box3.insert(END, "   key has child node (token):" + token + "\n")
-    accept_token(Mytokens, box3)
+    accept_token(Mytokens, box3, box4)
   else:
     #print("expect key as the first element of the expression!\n")
     box3.insert(END, "expect key as the first element of the expression!\n\n")
@@ -189,32 +199,34 @@ def exp(Mytokens, box3):
   if (inToken[0] == "id"):
     #print("child node (internal): identifier")
     box3.insert(END, "child node (internal): identifier\n")
+    box4.insert('exp', '2', 'id', text='id: ' + inToken[1])
     #print("   identifier has child node (token):" + inToken[1])
     box3.insert(END, "   identifier has child node (token):" + inToken[1] + "\n")
-    accept_token(Mytokens, box3)
+    accept_token(Mytokens, box3, box4)
   else:
     #print("expect id as the second element of the expression!")
-    box3.insert(END, "expect id as the second element of the expression!\n")
+    box3.insert(END, "expect id as the second element of the expression!\n")\
     #print("Actual {}".format(inToken[1]))
     box3.insert(END, "Actual {}\n".format(inToken[1]))
     return
   if (inToken[1] == "="):
     #print("child node (token):" + inToken[1])
     box3.insert(END, "child node (token):" + inToken[1] + "\n")
-    accept_token(Mytokens, box3)
+    box4.insert('exp', '3', '=', text='=')
+    accept_token(Mytokens, box3, box4)
   else:
     #print("expect = as the third element of the expression!")
     box3.insert(END, "expect = as the third element of the expression!\n")
     return
   #print("child node (internal): math")
   box3.insert(END, "child node (internal): math\n")
-  math(Mytokens, box3)
+  math(Mytokens, box3, box4)
 
 
-def parser(Mytokens, box3):
+def parser(Mytokens, box3, box4):
   global inToken
   inToken = Mytokens.pop(0)
-  exp(Mytokens, box3)
+  exp(Mytokens, box3, box4)
   if (inToken[1] == ";"):
     #print("\nparse tree building success!")
     box3.insert(END, "\nparse tree building success!\n")
@@ -342,30 +354,31 @@ class LexerGUI:
     #creating output label
     self.outlabel = Label(self.master, text="Tokens")
     self.outlabel.grid(row=0, column=1, sticky=W, padx=15, pady=(10, 0))
-    #creating parser label  modified by Nico
+    #creating parser label
     self.parselabel = Label(self.master, text="Parse Tree (Text)")
     self.parselabel.grid(row=0, column=2, sticky=W, padx=15, pady=(10, 0))
 
-    #creting parse tree label   also modified by Nico
+    #creting parse tree label
     self.treelabel = Label (self.master, text="Parse Tree (Visual)")
     self.treelabel.grid(row=0, column=3, sticky=W, padx=15, pady=(10,0))
 
     #creating input text box
-    self.box1 = Text(self.master, width=30, height=30)
+    self.box1 = Text(self.master, width=30, height=10)
     self.box1.grid(row=1, column=0, sticky=W, padx=15)
     #creating output text box
-    self.box2 = Text(self.master, width=30, height=30)
+    self.box2 = Text(self.master, width=30, height=10)
     self.box2.grid(row=1, column=1, sticky=W, padx=15)
     #creating parser text box
-    self.box3 = Text(self.master, width=60, height=30)
+    self.box3 = Text(self.master, width=30, height=10)
     self.box3.grid(row=1, column=2, sticky=W, padx=15)
-    #creating line proccess label
-    self.prolabel = Label(self.master, text="Current Processing Line: ")
-    self.prolabel.grid(row=2, column=0, sticky=W, padx=15)
-
+    
     #creating tree visual box
     self.box4 = ttk.Treeview()
     self.box4.grid(row=1, column=4, sticky=W, padx=15)
+    
+    #creating line proccess label
+    self.prolabel = Label(self.master, text="Current Processing Line: ")
+    self.prolabel.grid(row=2, column=0, sticky=W, padx=15)
 
     #creating line proccess value label
     self.provalabel = Label(self.master, text=self.count)
@@ -377,7 +390,24 @@ class LexerGUI:
     self.quitb = Button(self.master, text="Quit", command=myTkRoot.quit)
     self.quitb.grid(column=1, row=3, sticky=E, padx=(0, 35))
 
+  def populateTree(self):   #used for testing and reference purposes. -Nico
+    #Inserting parent
+    self.box4.insert('', '0', 'item1', text ='Exp')
+    
+    # Inserting child
+    self.box4.insert('', '1', 'item2', text ='key')
+    self.box4.insert('', '2', 'item3', text ='identifier')
+    self.box4.insert('', '3', 'item4', text ='=') 
+    self.box4.insert('', 'end', 'item5', text ='math') 
+    
+    #Moving children under parent.
+    self.box4.move('item2', 'item1', 'end')
+    self.box4.move('item3', 'item1', 'end')
+    self.box4.move('item4', 'item1', 'end')
+    self.box4.move('item5', 'item1', 'end')
+
   def gonextline(self):
+    #self.populateTree()
     mytokens = []
     #getting user input from txt box
     text = self.box1.get("1.0", "end")
@@ -402,7 +432,7 @@ class LexerGUI:
       self.box2.insert(END, result[0] + "\n")
 
     new_list = list(tuple(item[0].split(',')) for item in mytokens)
-    parser(new_list, self.box3)
+    parser(new_list, self.box3, self.box4)
     self.count += 1
     self.provalabel.config(text=self.count)
 
