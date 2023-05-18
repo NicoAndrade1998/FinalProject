@@ -5,6 +5,9 @@ import re
 
 Mytokens = []
 inToken = ("empty", "empty")
+multidepth = 0
+floatdepth = 0
+
 '''
 def accept_token(Mytokens):
   global inToken
@@ -236,16 +239,18 @@ def if_exp(Mytokens, box3, box4):
 
 
 def multi(Mytokens, box3, box4):
+  global multidepth
+  multidepth = multidepth + 1
   print("\n----parent node multi, finding children nodes:")
   box3.insert(END, "\n----parent node multi, finding children nodes:\n")
-  box4.insert('math', 'end', 'multi', text= 'multi')
+  box4.insert('math', 'end', 'multi' + str(multidepth), text= 'multi')
   global inToken
   if (inToken[0] == "float"):
     print("child node (internal): float")
     box3.insert(END, "child node (internal): float\n")
     print("   float has child node (token):" + inToken[1])
     box3.insert(END, "   float has child node (token):" + inToken[1] + "\n")
-    box4.insert('multi', 'end', 'float', text= 'float: ' + inToken[1])
+    box4.insert('multi' + str(multidepth), 'end', 'float', text= 'float: ' + inToken[1])
     accept_token(Mytokens, box3, box4)
   elif (inToken[0] == "int"):
     print("child node (internal): int")
@@ -262,7 +267,7 @@ def multi(Mytokens, box3, box4):
 
       print("child node (internal): multi")
       box3.insert(END, "child node (internal): multi\n")
-      box4.insert('multi', 'end', '*', text= '*')
+      box4.insert('multi' + str(multidepth), 'end', '*', text= '*')
       multi(Mytokens, box3, box4)
     else:
       print("error, you need * after the int in the math")
